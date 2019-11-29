@@ -814,7 +814,19 @@ int main(void) {
 void putch(char ch) {
 #ifndef SOFT_UART
   while (!(UART_SRA & _BV(UDRE0)));
+	
+	    // enable transmit mode
+  PORTD |= _BV(PORTD5);
+    // clear out TXC0
+  UART_SRA |= _BV(TXC0);
+ 
   UART_UDR = ch;
+ 
+    // wait for transmit complete
+  while(!(UART_SRA & _BV(TXC0)) );
+    // enable receive mode
+  PORTD &= ~_BV(PORTD5);
+	
 #else
   __asm__ __volatile__ (
     "   com %[ch]\n" // ones complement, carry set
